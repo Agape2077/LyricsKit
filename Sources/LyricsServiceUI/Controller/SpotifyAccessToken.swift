@@ -30,9 +30,9 @@ struct SpotifyAccessToken: Codable {
         }
         let secretKeyURL = URL(string: "https://raw.githubusercontent.com/Thereallo1026/spotify-secrets/refs/heads/main/secrets/secrets.json")!
         let serverTimeRequest = URLRequest(url: .init(string: "https://open.spotify.com/api/server-time")!)
-        let serverTimeData = try await URLSession.shared.data(for: serverTimeRequest).0
+        let serverTimeData = try await sharedURLSession.data(for: serverTimeRequest).0
         let serverTime = try JSONDecoder().decode(ServerTime.self, from: serverTimeData).serverTime
-        let (data, _) = try await URLSession.shared.data(from: secretKeyURL)
+        let (data, _) = try await sharedURLSession.data(from: secretKeyURL)
         let secretEntries = try JSONDecoder().decode([SecretKeyEntry].self, from: data)
         guard let lastEntry = secretEntries.last else {
             throw Error.totpGenerationFailed
@@ -55,7 +55,7 @@ struct SpotifyAccessToken: Codable {
         request.httpMethod = "GET"
         request.setValue("sp_dc=\(cookie)", forHTTPHeaderField: "Cookie")
         request.setValue("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36", forHTTPHeaderField: "User-Agent")
-        let accessTokenData = try await URLSession.shared.data(for: request).0
+        let accessTokenData = try await sharedURLSession.data(for: request).0
         try print(JSONSerialization.jsonObject(with: accessTokenData))
         return try JSONDecoder().decode(SpotifyAccessToken.self, from: accessTokenData)
     }

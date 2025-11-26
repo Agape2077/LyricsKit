@@ -1,4 +1,14 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import Regex
 import LyricsCore
 
@@ -53,7 +63,7 @@ extension LyricsProviders.Spotify: _LyricsProvider {
         req.addValue("Bearer \(tokens.search)", forHTTPHeaderField: "Authorization")
 
         do {
-            let (data, _) = try await URLSession.shared.data(for: req)
+            let (data, _) = try await sharedURLSession.data(for: req)
             let result = try JSONDecoder().decode(SpotifyResponseSearchResult.self, from: data)
             print(result)
             return result.tracks.items.map { LyricsToken(value: $0) }
@@ -77,7 +87,7 @@ extension LyricsProviders.Spotify: _LyricsProvider {
 
         let singleLyricsResponse: SpotifyResponseSingleLyrics
         do {
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, _) = try await sharedURLSession.data(for: request)
             if let jsonString = String(data: data, encoding: .utf8) {
                 print("Spotify Received JSON: \(jsonString)")
             }

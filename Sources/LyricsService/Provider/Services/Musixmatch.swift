@@ -1,4 +1,14 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import LyricsCore
 
 extension LyricsProviders {
@@ -89,7 +99,7 @@ extension LyricsProviders.Musixmatch: _LyricsProvider {
 
         do {
             // Request
-            let (data, _) = try await URLSession.shared.data(for: urlRequest)
+            let (data, _) = try await sharedURLSession.data(for: urlRequest)
             let apiResponse = try JSONDecoder().decode(
                 MusixmatchResponseSearchResult.self, from: data)
 
@@ -149,7 +159,7 @@ extension LyricsProviders.Musixmatch: _LyricsProvider {
 
         do {
             // Request
-            let (data, _) = try await URLSession.shared.data(for: urlRequest)
+            let (data, _) = try await sharedURLSession.data(for: urlRequest)
             let apiResponse = try JSONDecoder().decode(
                 MusixmatchResponseSingleLyrics.self, from: data)
 

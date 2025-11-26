@@ -1,4 +1,11 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+import Foundation
 
 struct NetEaseResponseSingleLyrics: Decodable {
     let lrc: Lyric?

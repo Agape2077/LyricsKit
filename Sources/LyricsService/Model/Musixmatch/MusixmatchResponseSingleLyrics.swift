@@ -1,3 +1,10 @@
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
 /// This structure represents the full response from the Musixmatch "macro.subtitles.get" API endpoint:
 /// https://apic-desktop.musixmatch.com/ws/1.1/macro.subtitles.get
 struct MusixmatchResponseSingleLyrics: Decodable {

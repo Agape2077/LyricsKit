@@ -1,4 +1,11 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+import Foundation
 
 public protocol AuthenticationManager: Sendable {
     func isAuthenticated() async -> Bool

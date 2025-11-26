@@ -1,4 +1,14 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import LyricsCore
 
 private let kugouSearchBaseURLString = "http://lyrics.kugou.com/search"
@@ -33,7 +43,7 @@ extension LyricsProviders.Kugou: _LyricsProvider {
         }
 
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await sharedURLSession.data(from: url)
             let searchResult = try JSONDecoder().decode(KugouResponseSearchResult.self, from: data)
 
             return searchResult.data.info.map { .init(value: $0) }
@@ -49,7 +59,7 @@ extension LyricsProviders.Kugou: _LyricsProvider {
     public func fetch(with token: LyricsToken) async throws -> Lyrics {
         let url = URL(string: "https://krcs.kugou.com/search?ver=1&man=yes&client=mobi&keyword=&duration=&hash=\(token.value.hash)&album_audio_id=\(token.value.albumAudioID)")!
 
-        let (candidatesData, _) = try await URLSession.shared.data(for: .init(url: url))
+        let (candidatesData, _) = try await sharedURLSession.data(for: .init(url: url))
 
         guard let candidate = try JSONDecoder().decode(KugouResponseSearchResultCandidates.self, from: candidatesData).candidates.first else {
             throw LyricsProviderError.processingFailed(reason: "No candidates found for the provided token.")
@@ -71,7 +81,7 @@ extension LyricsProviders.Kugou: _LyricsProvider {
 
         let singleLyricsResponse: KugouResponseSingleLyrics
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await sharedURLSession.data(from: url)
             singleLyricsResponse = try JSONDecoder().decode(KugouResponseSingleLyrics.self, from: data)
         } catch let error as DecodingError {
             throw LyricsProviderError.decodingError(underlyingError: error)

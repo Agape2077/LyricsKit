@@ -1,4 +1,11 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+import Foundation
 
 // Custom error type for more specific error handling
 public enum LyricsProviderError: Error, LocalizedError {

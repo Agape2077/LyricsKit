@@ -1,4 +1,14 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import LyricsCore
 import Regex
 import BigInt
@@ -49,14 +59,14 @@ extension LyricsProviders.NetEase: _LyricsProvider {
 //        ]
 
         do {
-            let (_, response) = try await URLSession.shared.data(for: req)
+            let (_, response) = try await sharedURLSession.data(for: req)
 
             if let httpResp = response as? HTTPURLResponse, let setCookie = httpResp.allHeaderFields["Set-Cookie"] as? String, let cookieIdx = setCookie.firstIndex(of: ";") {
                 let cookie = String(setCookie[..<cookieIdx])
                 req.setValue(cookie, forHTTPHeaderField: "Cookie")
             }
 
-            let (data, _) = try await URLSession.shared.data(for: req)
+            let (data, _) = try await sharedURLSession.data(for: req)
 //            let data = try await EapiHelper.post(url: url, data: data)
 //            print(try JSONSerialization.jsonObject(with: data))
             let searchResult = try JSONDecoder().decode(NetEaseResponseSearchResult.self, from: data)
@@ -80,7 +90,7 @@ extension LyricsProviders.NetEase: _LyricsProvider {
 
         let singleLyricsResponse: NetEaseResponseSingleLyrics
         do {
-//            let (data, _) = try await URLSession.shared.data(from: url)
+//            let (data, _) = try await sharedURLSession.data(from: url)
 //            singleLyricsResponse = try JSONDecoder().decode(NetEaseResponseSingleLyrics.self, from: data)
 
             let data: [String: String] = [
@@ -143,7 +153,7 @@ private enum EapiHelper {
     private static let eapiKey = "e82ckenh8dichen8".data(using: .ascii)!
 
     static func post(url: String, data: [String: String]) async throws -> Data {
-        let httpClient = URLSession.shared
+        let httpClient = sharedURLSession
 
         var headers: [String: String] = [
             "User-Agent": userAgent,

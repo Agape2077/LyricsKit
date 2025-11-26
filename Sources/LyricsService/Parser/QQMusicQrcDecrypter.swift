@@ -1,4 +1,8 @@
 import Foundation
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+import SWCompression
 
 class QrcDecoder {
     static let KEY1 = Array("!@#)(NHLiuy*$%^&".utf8)
@@ -43,16 +47,17 @@ class QrcDecoder {
         try ddes(&data, KEY1, dataLen)
         try des(&data, KEY2, dataLen)
         try ddes(&data, KEY3, dataLen)
-        var byteData = Data(data)
+        let byteData = Data(data)
 
         guard !byteData.isEmpty else {
             throw DecodeError.dataEmpty
         }
 
-        byteData.removeFirst(2)
+        // 关键修改：SWCompression 需要完整的 Zlib 头，不要移除前两个字节
+        // byteData.removeFirst(2)
 
-        let decompressedData = try (byteData as NSData).decompressed(using: .zlib)
-        guard let result = String(data: decompressedData as Data, encoding: .utf8) else {
+        let decompressedData = try ZlibArchive.unarchive(archive: byteData)
+        guard let result = String(data: decompressedData, encoding: .utf8) else {
             throw DecodeError.convertStringError
         }
         return result

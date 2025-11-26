@@ -1,4 +1,14 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import LyricsCore
 import Regex
 
@@ -29,7 +39,7 @@ extension LyricsProviders.LRCLIB: _LyricsProvider {
         }
 
         do {
-            let (data, _) = try await URLSession.shared.data(for: .init(url: url))
+            let (data, _) = try await sharedURLSession.data(for: .init(url: url))
             let results = try JSONDecoder().decode([LRCLIBResponse].self, from: data)
             return results.map { LyricsToken(value: $0) }
         } catch let error as DecodingError {
@@ -51,7 +61,7 @@ extension LyricsProviders.LRCLIB: _LyricsProvider {
 
         let fetchedToken: LRCLIBResponse
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await sharedURLSession.data(from: url)
             fetchedToken = try JSONDecoder().decode(LRCLIBResponse.self, from: data)
         } catch let error as DecodingError {
             throw LyricsProviderError.decodingError(underlyingError: error)

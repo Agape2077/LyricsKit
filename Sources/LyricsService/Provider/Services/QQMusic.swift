@@ -1,4 +1,14 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 import LyricsCore
 
 private let qqSearchBaseURLString1 = "https://c.y.qq.com/splcloud/fcgi-bin/smartbox_new.fcg"
@@ -44,7 +54,7 @@ extension LyricsProviders.QQMusic: _LyricsProvider {
         }
 
         do {
-            let (data, _) = try await URLSession.shared.data(for: .init(url: url))
+            let (data, _) = try await sharedURLSession.data(for: .init(url: url))
             let result = try JSONDecoder().decode(QQResponseSearchResult.self, from: data)
             return result.data.song.list.map { LyricsToken(value: $0) }
         } catch {
@@ -74,7 +84,7 @@ extension LyricsProviders.QQMusic: _LyricsProvider {
 
         let data: Data
         do {
-            (data, _) = try await URLSession.shared.data(for: req)
+            (data, _) = try await sharedURLSession.data(for: req)
         } catch {
             throw LyricsProviderError.networkError(underlyingError: error)
         }

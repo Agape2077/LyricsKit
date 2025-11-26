@@ -1,3 +1,10 @@
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
 struct KugouKrcHeaderFieldLanguage: Codable {
     let content: [Content]
     let version: Int
