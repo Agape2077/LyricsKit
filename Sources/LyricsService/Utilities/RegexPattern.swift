@@ -8,6 +8,7 @@ import FoundationXML
 import Foundation
 import Regex
 
+// swiftlint:disable force_try
 private let timeTagRegex = Regex(#"\[([-+]?\d+):(\d+(?:\.\d+)?)\]"#)
 
 func resolveTimeTag(_ str: String) -> [TimeInterval] {
@@ -19,9 +20,9 @@ func resolveTimeTag(_ str: String) -> [TimeInterval] {
     }
 }
 
-let id3TagRegex = Regex(#"^(?!\[[+-]?\d+:\d+(?:\.\d+)?\])\[(.+?):(.+)\]$"#, options: .anchorsMatchLines)
+let id3TagRegex = try! Regex(#"^(?!\[[+-]?\d+:\d+(?:\.\d+)?\])\[(.+?):(.+)\]$"#, options: .anchorsMatchLines)
 
-let krcLineRegex = Regex(#"^\[(\d+),(\d+)\](.*)"#, options: .anchorsMatchLines)
+let krcLineRegex = try! Regex(#"^\[(\d+),(\d+)\](.*)"#, options: .anchorsMatchLines)
 
 let qrcLineRegex = Regex(#"^\[(\d+),(\d+)\](.*)"#, options: [.anchorsMatchLines])
 
@@ -31,4 +32,7 @@ let netEaseInlineTagRegex = Regex(#"\(0,(\d+)\)([^(]+)(\(0,1\) )?"#)
 
 let kugouInlineTagRegex = Regex(#"<(\d+),(\d+),0>([^<]*)"#)
 
-let qqmusicInlineTagRegex = Regex(#"([^(]*)\((\d+),(\d+)\)"#)
+// Non-greedy fragment so literal parentheses in lyric text survive:
+// a QRC token like "3 ((150,50)" must yield fragment "3 (", not drop it.
+let qqmusicInlineTagRegex = Regex(#"(.*?)\((\d+),(\d+)\)"#)
+// swiftlint:enable force_try

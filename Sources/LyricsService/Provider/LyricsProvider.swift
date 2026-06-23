@@ -7,14 +7,15 @@ import FoundationXML
 #endif
 import Foundation
 import LyricsCore
+import FoundationToolbox
 
 public enum LyricsProviders {}
 
-public protocol LyricsProvider {
+public protocol LyricsProvider: Sendable {
     func lyrics(for request: LyricsSearchRequest) -> AsyncThrowingStream<Lyrics, Error>
 }
 
-public protocol _LyricsProvider: LyricsProvider {
+protocol _LyricsProvider: LyricsProvider {
     associatedtype LyricsToken
 
     static var service: String { get }
@@ -24,10 +25,17 @@ public protocol _LyricsProvider: LyricsProvider {
     func fetch(with token: LyricsToken) async throws -> Lyrics
 }
 
+@Loggable
+private enum LyricsProviderLog {
+    static func fetchTaskFailed(_ error: any Error) {
+        #log(.error, "A fetch task failed, skipping. Error: \(error)")
+    }
+}
+
 extension _LyricsProvider {
-    public func lyrics(for request: LyricsSearchRequest) -> AsyncThrowingStream<Lyrics, Error> {
-        return AsyncThrowingStream { continuation in
-            Task {
+    func lyrics(for request: LyricsSearchRequest) -> AsyncThrowingStream<Lyrics, Error> {
+        AsyncThrowingStream { continuation in
+            let task = Task {
                 do {
                     let tokens = try await self.search(for: request)
                     let limitedTokens = tokens.prefix(request.limit)
@@ -42,20 +50,24 @@ extension _LyricsProvider {
                     }
 
                     for task in fetchTasks {
+                        if Task.isCancelled {
+                            task.cancel()
+                            continue
+                        }
                         do {
                             let lyric = try await task.value
                             continuation.yield(lyric)
                         } catch {
-                            print("A fetch task failed, skipping. Error: \(error)")
+                            LyricsProviderLog.fetchTaskFailed(error)
                         }
                     }
 
                     continuation.finish()
-
                 } catch {
                     continuation.finish(throwing: error)
                 }
             }
+            continuation.onTermination = { _ in task.cancel() }
         }
     }
 }
